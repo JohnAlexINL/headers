@@ -1,0 +1,3 @@
+#!/bin/sh
+bytes LICENSE LICENSE license.h
+gcc -o glyph glyph.c -lm
