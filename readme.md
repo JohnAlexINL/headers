@@ -9,12 +9,13 @@ you could run something like
 ```sh
 HEADERS="https://github.com/JohnAlexINL/headers/archive/refs/heads/stabs.zip"
 ZIP="headers.zip"
-TMP=tmp
-DIR=headers
+TMP="tmp"
+DIR="headers/"
 mkdir -p "$DIR"
+mkdir -p "$TMP"
 wget -O $ZIP $HEADERS
 unzip -q $ZIP -d $TMP
-cp -r $TMP/headers $DIR
+cp -r $TMP/headers-stabs/headers/* $DIR
 rm -rf $ZIP $TMP
 ```
 
