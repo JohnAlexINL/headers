@@ -1,0 +1,10 @@
+#!/bin/sh
+HEADERS="https://github.com/JohnAlexINL/stabs/archive/refs/heads/stabs.zip"
+ZIP="headers.zip"
+TMP=tmp
+DIR=headers
+mkdir -p "$DIR"
+wget -O $ZIP $HEADERS
+unzip -q $ZIP -d $TMP
+cp -r $TMP/headers $DIR
+rm -rf $ZIP $TMP

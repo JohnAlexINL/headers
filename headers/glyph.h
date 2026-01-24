@@ -1,7 +1,7 @@
 // ------------     License & Usage
 /*
 
-Aebern, Font-to-Glyph Spritesheet Tool
+Font-to-Glyph Component
 (C) 2026, Blood Rose Records
 
     cc -o glyph glyph.c

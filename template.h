@@ -1,7 +1,17 @@
+// ------------     License & Usage
+/*
+
+Template Component
 (C) 2026, Blood Rose Records
 
-This software is made available under the 
-v1.0 Blood Rose 4-Clause License
+    #include "template.h"
+    Description of what this header implements
+
+    TEMPLATE_H Names
+        // list of namespaces
+
+License:		Blood Rose 4 Clause License v1.0
+Licensor:		Blood Rose Records <https://bloodrose.org>
 
 Redistribution and use in source and binary forms,
 with or without modification,
@@ -34,3 +44,28 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
 HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
+
+*/
+
+// ------------     Dependencies
+
+#ifndef DEPENDENCY
+    #error THIS: needs DEPENDENCY
+#endif
+
+// ------------     Includes, Defines, and Macros
+
+// ------------     Type Definitions
+
+// ------------     Function Prototypes
+
+// ------------     Global Variables
+
+#ifndef TEMPLATE_H
+#define TEMPLATE_H
+
+// ------------     Implementations
+
+// ------------     Swappable Dependencies
+
+#endif

@@ -1,3 +1,5 @@
 #!/bin/sh
-bytes LICENSE LICENSE license.h
-gcc -o glyph glyph.c -lm
+rm -rf bin > /dev/null 2>&1
+mkdir -p bin
+bytes LICENSE LICENSE headers/license.h
+gcc -o bin/glyph src/glyph.c -lm -Iheaders
