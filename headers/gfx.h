@@ -123,6 +123,7 @@ void        gfx_loadbmp         (gfx_t *dest, char * source); // overwrites the 
     // Stamping Functions
 pixel_t     gfx_sample          (gfx_t *canvas, int x, int y);
 void        gfx_stampraw        (gfx_t *dest, gfx_t *source, int w, int h, int dx, int dy, int sx, int sy); // 1:1 scale stamps
+void        gfx_stampscaled     (gfx_t *dest, gfx_t *source, pixel_t mask, int dw, int dh, int dx, int dy, int sw, int sh, int sx, int sy);
 void        gfx_stampcolor      (gfx_t *dest, gfx_t *source, int w, int h, int dx, int dy, int sx, int sy);
 void        gfx_stamp           (gfx_t *dest, gfx_t *source, int x, int y);
 
@@ -332,6 +333,23 @@ void        gfx_stampraw        (gfx_t *dest, gfx_t *source, int w, int h, int d
     for(x=1;x<w;x++) {
         pixel_t here = gfx_sample(source, sx+x, sy+y);
         if ( here == mask ) { continue; }
+        gfx_color(here);
+        gfx_dot(dest, dx+x, dy+y);
+    }}
+    gfx_color(lastcolor);
+}
+
+void        gfx_stampscaled     (gfx_t *dest, gfx_t *source, pixel_t mask, int dw, int dh, int dx, int dy, int sw, int sh, int sx, int sy)
+{
+    pixel_t lastcolor = gfx_global_color;
+    int x; int y; 
+    for(y=1;y<dh;y++) {
+    for(x=1;x<dw;x++) {
+        int lx = (int)( (float)(x)*sw) / (float)(dw);
+        int ly = (int)( (float)(y)*sh) / (float)(dh);
+        // printf("x %d y %d sx %d sh %d\nlx ly %d %d\n", x, y, sx, sh, lx, ly);
+        pixel_t here = gfx_sample(source, sx+lx, sy+ly);
+        if ( here == mask ) {continue; }
         gfx_color(here);
         gfx_dot(dest, dx+x, dy+y);
     }}
