@@ -57,10 +57,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
 #include <SDL2/SDL.h>
 #include <time.h>
 
-#ifndef GFX_H
-    #error UI_H: need GFX_H
-#endif
-
 // ------------     Includes, Defines, and Macros
 
 #ifndef PRIMITVES
