@@ -21,6 +21,7 @@ void            debug_error     (const char *);
 void            debug_panic     (const char *);
 bool            debug_try       (bool, const char *, const char *);
 void			debug_pop		(void);
+void			debug_pad		(void);
 
 // ------------	Implementation
 
@@ -33,27 +34,27 @@ void			debug_pop		(void);
 
 #define debug_return(RET) { \
 	debug_pop(); \
-	printf(DEBUG_DENOUNCE, STR(RET)); \
-	if (DEBUG_INDEX >=0) \
-	{ printf(DEBUG_ANNOUNCE, DEBUG_INDEX, DEBUG_NAME[DEBUG_INDEX]); } \
-	RET; }
+	debug_pad(); \
+	printf(DEBUG_DENOUNCE, DEBUG_NAME[DEBUG_INDEX+1], STR(RET)); \
+	return RET; }
 
 #define DEBUG_MAX_DEPTH			512
 #define DEBUG_RED               "\x1B\x5B\x30\x3b\x33\x31\x6D"
 #define DEBUG_GREEN             "\x1B\x5B\x30\x3b\x33\x32\x6D"
 #define DEBUG_PURPLE            "\x1B\x5B\x30\x3b\x33\x35\x6D"
 #define DEBUG_WHITE             "\x1B\x5B\x30\x6D"
-#define DEBUG_ANNOUNCE			DEBUG_PURPLE "> %4d  " DEBUG_GREEN "%s" DEBUG_WHITE "\n"
-#define DEBUG_DENOUNCE			"  return %s\n"
-#define DEBUG_ERR               "  " DEBUG_RED "[ERR] " DEBUG_WHITE "%s\n"
-#define DEBUG_OK                "  " DEBUG_GREEN "[OK]  " DEBUG_WHITE "%s\n"
+#define DEBUG_ANNOUNCE			DEBUG_PURPLE "enter fn " DEBUG_GREEN "%s" DEBUG_WHITE "\n"
+#define DEBUG_DENOUNCE			DEBUG_PURPLE "%s " DEBUG_WHITE "returned " DEBUG_GREEN "(%s)" DEBUG_WHITE "\n"
+#define DEBUG_ERR               DEBUG_RED "[ERR] " DEBUG_WHITE "%s\n"
+#define DEBUG_OK                DEBUG_GREEN "[OK]  " DEBUG_WHITE "%s\n"
 #define DEBUG_NULL				"\0"
+#define DEBUG_PADDING			"    "
 
 char * 			DEBUG_NAME [DEBUG_MAX_DEPTH];
 int				DEBUG_INDEX = -1;
 
-void            debug_ok        (const char * str) { printf(DEBUG_OK, str); }
-void            debug_error     (const char * str) { fprintf(stderr, DEBUG_ERR, str); }
+void            debug_ok        (const char * str) { debug_pad(); printf(DEBUG_OK, str); }
+void            debug_error     (const char * str) { debug_pad(); printf(DEBUG_ERR, str); }
 void            debug_panic     (const char * str) { debug_error(str); exit(1); }
 
 void            debug_fn        (char * str)
@@ -61,7 +62,7 @@ void            debug_fn        (char * str)
 	DEBUG_INDEX++;
 	if ( DEBUG_INDEX >= DEBUG_MAX_DEPTH ) { debug_panic("Exceeded maximum debug stack depth"); }
 	DEBUG_NAME[DEBUG_INDEX] = str;
-	printf(DEBUG_ANNOUNCE, DEBUG_INDEX, DEBUG_NAME[DEBUG_INDEX]);
+	debug_pad(); printf(DEBUG_ANNOUNCE, DEBUG_NAME[DEBUG_INDEX]);
 }
 
 void			debug_pop		(void)
@@ -76,6 +77,13 @@ bool            debug_try       (bool state, const char *good, const char *evil)
 	else { debug_error(evil); }
 	return state;
 }
+
+void			debug_pad		(void)
+{
+	printf("\r");
+	int i; for(i=0;i<DEBUG_INDEX;i++) { printf(DEBUG_PADDING); }
+}
+
 
 #endif
 
