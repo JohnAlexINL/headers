@@ -22,10 +22,10 @@ Redistribution and use in source and binary forms,
 with or without modification,
 are permitted provided that the following conditions are met:
 
-1. Redistribution of source code must retain 
+1. Redistribution of source code must retain
 the above copyright notice, this list of conditions, and the following disclaimer.
 
-2. Redistribution in binary form must reproduce 
+2. Redistribution in binary form must reproduce
 the above copyright notice, this list of conditions, and the following disclaimer
 in the documentation and/or other materials provided with the distribution.
 
@@ -96,6 +96,8 @@ bool        ui_init             (ui_t *window, pixel_t * pixelbuffer, int w, int
 void        ui_icon             (ui_t *window, pixel_t * data, int w, int h);
 void        ui_title            (ui_t *window, const char * title);
 void        ui_size             (ui_t *window, int *w, int *h);
+void		ui_resize			(ui_t *window, int w, int h);
+void		ui_resizable		(ui_t *window, bool state);
 void        ui_destroy          (ui_t *window);
 void        ui_quit             (ui_t *window);
 void        ui_present          (ui_t *window);
@@ -116,7 +118,7 @@ char event_filename[255];
 enum {
     EVENT_NONE, EVENT_QUIT,
     EVENT_DROP, EVENT_WINDOW, EVENT_AUDIO,
-    EVENT_KEYS, EVENT_MOUSE, EVENT_SCROLL, 
+    EVENT_KEYS, EVENT_MOUSE, EVENT_SCROLL,
 };
 
 enum
@@ -132,13 +134,13 @@ enum
 };
 
 const char event_names[][10] = {
-    [EVENT_NONE] =      "NONE", 
+    [EVENT_NONE] =      "NONE",
     [EVENT_QUIT] =      "QUIT",     // SDL_QuitEvent
     [EVENT_WINDOW] =    "WINDOW",   // SDL_DisplayEvent, SDL_WindowEvent
     [EVENT_AUDIO] =     "AUDIO",    // SDL_AudioDeviceEvent
     [EVENT_DROP] =      "DROP",     // SDL_DropEvent, drag & drop
     [EVENT_KEYS] =      "KEYBOARD", // SDL_KeyboardEvent
-    [EVENT_MOUSE] =     "MOUSE",    // SDL_MouseMotionEvent, SDL_MouseButtonEvent, 
+    [EVENT_MOUSE] =     "MOUSE",    // SDL_MouseMotionEvent, SDL_MouseButtonEvent,
     [EVENT_SCROLL] =    "SCROLL",   // SDL_MouseWheelEvent
 };
 
@@ -155,13 +157,13 @@ const char event_wnames[][10] = {
 
 // ------------     Implementations
 
-void ui_wait (double seconds) 
+void ui_wait (double seconds)
 {
     uint32_t mil = (uint32_t)((double)(seconds * mil));
     SDL_Delay(mil);
 }
 
-int ui_timer(double seconds) 
+int ui_timer(double seconds)
 {
     static clock_t timer_last = 0;
     clock_t now = clock();
@@ -178,8 +180,8 @@ bool        ui_init                 (ui_t *window, pixel_t * pixelbuffer, int w,
     window->handler = NULL;
 
     window->pixels = pixelbuffer;
-    if (!window->pixels) { return -1; }
-    if (SDL_Init(SDL_INIT_VIDEO) != 0) { return -1; }
+    if (!window->pixels) { return false; }
+    if (SDL_Init(SDL_INIT_VIDEO) != 0) { return false; }
 
     window->window = SDL_CreateWindow(
         "UI_H",
@@ -188,11 +190,10 @@ bool        ui_init                 (ui_t *window, pixel_t * pixelbuffer, int w,
         SDL_WINDOW_SHOWN | ( fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0 )
     );
     if (!window->window)
-        return -1;
-
-    window->renderer = SDL_CreateRenderer(window->window, -1, 0);
+        return false;
+	window->renderer = SDL_CreateRenderer(window->window, -1, SDL_RENDERER_ACCELERATED);
     if (!window->renderer)
-        return -1;
+        return false;
 
     window->texture = SDL_CreateTexture(
         window->renderer,
@@ -201,9 +202,9 @@ bool        ui_init                 (ui_t *window, pixel_t * pixelbuffer, int w,
         w, h
     );
     if (!window->texture)
-        return -1;
+        return false;
 
-    return 0;
+    return true;
 }
 
 void        ui_icon             (ui_t *window, pixel_t * pixels, int w, int h)
@@ -213,15 +214,13 @@ void        ui_icon             (ui_t *window, pixel_t * pixels, int w, int h)
     // It also doesn't work on Mac, but that's like kinda expected
     const int bitdepth =        32;
     const int bytesPerRow =     w * 4;
-    // SDL_Surface *icon = SDL_CreateRGBSurfaceWithFormatFrom(pixels, w, h, bitdepth, bytesPerRow, SDL_PIXELFORMAT_ARGB8888);
-    
+
     SDL_Surface *icon = SDL_CreateRGBSurfaceWithFormat(
         0, w, h, 32, SDL_PIXELFORMAT_ARGB8888 // empty, will copy over
     );  if (!icon) { puts("Failed to map icon"); return; }
 
     memcpy(icon->pixels, pixels, w * h * 4);
     SDL_SetWindowIcon(window->window, icon);
-    // SDL_FreeSurface(icon);
 }
 
 void        ui_title            (ui_t *window, const char * title)
@@ -229,26 +228,36 @@ void        ui_title            (ui_t *window, const char * title)
     SDL_SetWindowTitle(window->window, title);
 }
 
-void ui_size(ui_t *window, int *w, int *h)
+void 		ui_size				(ui_t *window, int *w, int *h)
 {
     SDL_GetWindowSize(window->window, w, h);
 }
 
-void ui_destroy(ui_t *window)
+void		ui_resize			(ui_t *window, int w, int h)
+{
+	SDL_SetWindowSize(window->window, w, h);
+}
+
+void		ui_resizable		(ui_t *window, bool state)
+{
+	SDL_SetWindowResizable(window->window, state);
+}
+
+void 		ui_destroy			(ui_t *window)
 {
     if (window->texture)    { SDL_DestroyTexture  (window->texture);  }
     if (window->renderer)   { SDL_DestroyRenderer (window->renderer); }
     if (window->window)     { SDL_DestroyWindow   (window->window);   }
 }
 
-void ui_quit(ui_t *window)
+void 		ui_quit				(ui_t *window)
 {
     ui_destroy(window);
     SDL_Quit();
     exit(0);
 }
 
-void ui_present(ui_t *window)
+void 		ui_present			(ui_t *window)
 {
     SDL_UpdateTexture(window->texture, NULL, window->pixels, window->w * sizeof(unsigned int));
     SDL_RenderCopy(window->renderer, window->texture, NULL, NULL); // copy texture first
@@ -261,7 +270,7 @@ void window_clear(ui_t *window, pixel_t color)
         window->pixels[i] = color;
 }
 
-event_t ui_poll(ui_t *window) 
+event_t ui_poll(ui_t *window)
 {
     SDL_Event e; // https://wiki.libsdl.org/SDL2/SDL_Event
     SDL_PollEvent(&e);
@@ -289,7 +298,7 @@ event_t ui_poll(ui_t *window)
         }
 // -----------------    Mouse Events
         case SDL_MOUSEMOTION: {
-            uint16_t my = e.motion.y; 
+            uint16_t my = e.motion.y;
             uint16_t mx = e.motion.x;
             return (event_t) { .type = EVENT_MOUSE, .x = mx, .y = my, .c = false };
         }
@@ -338,10 +347,11 @@ event_t ui_poll(ui_t *window)
 
 event_t ui_eventloop (ui_t * window)
 {
+	bool onceler = false;
     event_t event;
     while(true) {
         event = ui_poll(window); event.source = window;
-        if ( event.type == EVENT_NONE ) { continue; }
+        // if ( event.type == EVENT_NONE ) { continue; }
         if ( ui_timer(1/300) == false ) { ui_wait(15); continue; }
         window->handler(&event);
         ui_present(window);
